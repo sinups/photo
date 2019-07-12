@@ -7,7 +7,7 @@
       <template>
         <v-layout row wrap  pa-3 mb-2>
           
-          <v-flex xs12 sm6 md3    pa-1 mb-1 v-for="photo in photos" :key="photo.id">
+          <v-flex xs12 sm6 md3 pa-1 mb-1 v-for="photo in photos" :key="photo.id">
             <v-img :src="photo.urls.regular" height="250px"></v-img>
             <v-card>
               <v-card-actions>
@@ -51,17 +51,16 @@
 
 <script>
 import appheader from "./components/appheader";
-// import cards from './components/cards';
 import pagination from "./components/pagination";
 import { log } from "util";
-var appId = "96f61dc28430b0c51088e051a42c22190cbb0718a6f9c9eab25315a2ad589d2a";
+import axios from 'axios'
+let appId = "96f61dc28430b0c51088e051a42c22190cbb0718a6f9c9eab25315a2ad589d2a";
 
 export default {
   name: "App",
   components: {
     appheader,
     pagination
-    // cards
   },
   data() {
     return {
@@ -73,25 +72,20 @@ export default {
   },
   methods: {
     fetchPhotos: function(page) {
-      var options = {
+       return axios.get('https://api.unsplash.com/photos', {
         params: {
           client_id: appId,
           page: page,
           per_page: this.perPage
         }
-      };
-
-      this.$http
-        .get("https://api.unsplash.com/photos", options)
-        .then(function(response) {
-          console.log(response);
-          this.photos = response.data;
-
-          this.totalPhotos = parseInt(response.headers.get("x-total"));
-
-          this.currentPage = page;
-        }, console.log);
-    }
+      }).then(response => {
+        this.photos = response.data;
+        console.log(response);
+        this.totalPhotos = parseInt(response.headers['x-total']);
+        this.currentPage = page;
+      })
+    },
+    
   },
   created: function() {
     this.fetchPhotos(this.currentPage);
